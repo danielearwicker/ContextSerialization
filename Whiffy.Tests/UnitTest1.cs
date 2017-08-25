@@ -2,6 +2,9 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Hangfire;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Hangfire.Common;
+using Hangfire.Server;
 
 namespace Whiffy.Tests
 {
@@ -12,7 +15,7 @@ namespace Whiffy.Tests
 
     public class Bakery : IBakery
     {
-        readonly IMagicNumber _magicNumber;
+        IContext
 
         public Bakery(IMagicNumber magicNumber)
         {
@@ -35,15 +38,23 @@ namespace Whiffy.Tests
         [Fact]
         public void Test1()
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddTransient<IBakery, Bakery>();
+            var services = new ServiceCollection();
 
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+            // Same as in standard UseHangfire(...)
+            services.TryAddSingleton<IJobFilterProvider>(_ => GlobalJobFilters.Filters);
+            services.TryAddSingleton<IBackgroundJobPerformer>(x => new BackgroundJobPerformer(
+                x.GetRequiredService<IJobFilterProvider>(),
+                x.GetRequiredService<JobActivator>()));
 
-            var scopeFactory = serviceProvider.GetService<IServiceScopeFactory>();
+            // Fake - just executes the job synchronously
+            services.AddTransient<IBackgroundJobClient, DirectSubmitter>();
 
-            var proxy = new MagicProxy(new DummyFilterProvider(), scopeFactory);
+            services.AddTransient<IBakery, Bakery>();
 
+
+
+            var serviceProvider = services.BuildServiceProvider();
+            
             var direct = new DirectSubmitter(proxy);
 
             new MagicSubmitter(direct, 52).Submit<Bakery>(b => b.Biscuits(100, true));

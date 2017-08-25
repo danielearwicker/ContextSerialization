@@ -5,6 +5,6 @@ namespace Whiffy
 {
     public interface IContextSubmitter
     {
-        void Submit<T>(Expression<Action<T>> job);
+        string Enqueue<T>(Expression<Action<T>> job);
     }
 }

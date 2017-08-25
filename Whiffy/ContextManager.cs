@@ -7,62 +7,41 @@ using Newtonsoft.Json.Linq;
 
 namespace Whiffy
 {
-    public class ContextManager : IContextSerialization
+    public class ContextManager : IContext
     {
         private readonly AsyncLocal<ImmutableDictionary<Type, object>> _state 
                    = new AsyncLocal<ImmutableDictionary<Type, object>>();
 
-        public class ContextGetter<T> : IContext<T>
+        public bool TryGet<T>(out T value)
         {
-            private ContextManager _owner;
-
-            public ContextGetter(ContextManager owner)
+            if (_state.Value.TryGetValue(typeof(T), out var obj))
             {
-                _owner = owner;
+                value = (T)obj;
+                return true;
             }
 
-            public T Context
-            {
-                get
-                {
-                    if (!_owner._state.Value.TryGetValue(typeof(T), out var value))
-                    {
-                        throw new NotSupportedException($"No contextual object of type {typeof(T)} is available");
-                    }
+            value = default(T);
+            return false;
+        }
+        
+        public R With<T, R>(T context, Func<R> perform)
+        {
+            var oldState = _state.Value ?? ImmutableDictionary<Type, object>.Empty;
+            var newState = oldState;
 
-                    return (T)value;
-                }
+            _state.Value = oldState.SetItem(typeof(T), context);
+
+            try
+            {
+                return perform();
+            }
+            finally
+            {
+                _state.Value = oldState;
             }
         }
 
-        public class ContextInjector<T> : IContextInjection<T>
-        {
-            private ContextManager _owner;
-
-            public ContextInjector(ContextManager owner)
-            {
-                _owner = owner;
-            }
-
-            public R With<R>(T context, Func<R> perform)
-            {
-                var oldState = _owner._state.Value ?? ImmutableDictionary<Type, object>.Empty;
-                var newState = oldState;
-
-                _owner._state.Value = oldState.SetItem(typeof(T), context);
-
-                try
-                {
-                    return perform();
-                }
-                finally
-                {
-                    _owner._state.Value = oldState;
-                }
-            }
-        }
-
-        public string Context
+        public string AsJson
         {
             get
             {
@@ -89,7 +68,7 @@ namespace Whiffy
             }
         }
 
-        public R With<R>(string context, Func<R> perform)
+        public R WithJson<R>(string context, Func<R> perform)
         {
             var oldState = _state.Value ?? ImmutableDictionary<Type, object>.Empty;
             var newState = oldState;
@@ -114,6 +93,19 @@ namespace Whiffy
             {
                 _state.Value = oldState;
             }
+        }
+    }
+
+    public static class ContextExtensions
+    {
+        public static T GetRequired<T>(this IContext context)
+        {
+            if (context.TryGet<T>(out var value))
+            {
+                return value;
+            }
+
+            throw new NotSupportedException($"No contextual object of type {typeof(T)} is available");
         }
     }
 }

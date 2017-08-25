@@ -2,18 +2,19 @@
 using System.Linq.Expressions;
 using Hangfire.Common;
 using Hangfire.Storage;
+using Hangfire;
 
 namespace Whiffy
 {
-    public class MagicSubmitter : IJobSubmitter
+    public class ContextSubmitter : IContextSubmitter
     {
-        private IJobSubmitter _transport;
-        private int _magicNumber;
-
-        public MagicSubmitter(IJobSubmitter transport, int magicNumber)
+        IContextSerialization _context;
+        IBackgroundJobClient _client;
+        
+        public ContextSubmitter(IContextSerialization context, IBackgroundJobClient client)
         {
-            _transport = transport;
-            _magicNumber = magicNumber;
+            _context = context;
+            _client = client;
         }
 
         public void Submit<T>(Expression<Action<T>> expr)
@@ -21,7 +22,7 @@ namespace Whiffy
             var job = Job.FromExpression(expr);
             var data = InvocationData.Serialize(job);
 
-            _transport.Submit<MagicProxy>(p => p.Execute(
+            _client.Submit<ContextJobExecutor>(p => p.Execute(
                 _magicNumber,
                 data.Type,
                 data.Method,

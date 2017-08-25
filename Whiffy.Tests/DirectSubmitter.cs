@@ -1,19 +1,19 @@
 ﻿using Hangfire;
 using System;
-using System.Linq.Expressions;
 using Hangfire.Annotations;
 using Hangfire.Common;
 using Hangfire.States;
+using Hangfire.Server;
 
 namespace Whiffy
 {
     public class DirectSubmitter : IBackgroundJobClient
     {
-        readonly object _instance;
+        private IBackgroundJobPerformer _performer;
 
-        public DirectSubmitter(object instance)
+        public DirectSubmitter(IBackgroundJobPerformer performer)
         {
-            _instance = instance;
+            _performer = performer;
         }
 
         public bool ChangeState([NotNull] string jobId, [NotNull] IState state, [CanBeNull] string expectedState)
@@ -23,13 +23,15 @@ namespace Whiffy
 
         public string Create([NotNull] Job job, [NotNull] IState state)
         {
-            throw new NotImplementedException();
-        }
+            var backgroundJob = new BackgroundJob(string.Empty, job, DateTime.MinValue);
 
-        public void Submit<T>(Expression<Action<T>> job)
-        {
-            var action = job.Compile();
-            action((T)_instance);
+            using (var storage = JobStorage.Current.GetConnection())
+            {
+                var performContext = new PerformContext(storage, backgroundJob, new DummyCancellation());
+                _performer.Perform(performContext);
+            }
+            
+            return Guid.NewGuid().ToString();
         }
     }
 }
