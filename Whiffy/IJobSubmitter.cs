@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace Whiffy
 {
-    public interface IJobSubmitter
+    public interface IContextSubmitter
     {
         void Submit<T>(Expression<Action<T>> job);
     }

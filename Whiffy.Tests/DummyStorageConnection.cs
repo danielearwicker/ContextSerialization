@@ -5,9 +5,23 @@ using Hangfire.Server;
 using System.Collections.Generic;
 using Hangfire.Annotations;
 using System.Threading;
+using Hangfire;
 
 namespace Whiffy
 {
+    public class DummyJobStorage : JobStorage
+    {
+        public override IStorageConnection GetConnection()
+        {
+            return new DummyStorageConnection();
+        }
+
+        public override IMonitoringApi GetMonitoringApi()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class DummyStorageConnection : IStorageConnection
     {
         public IDisposable AcquireDistributedLock(string resource, TimeSpan timeout)

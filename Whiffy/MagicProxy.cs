@@ -9,6 +9,7 @@ using System.Threading;
 
 namespace Whiffy
 {
+
     public class DummyCancellation : IJobCancellationToken
     {
         private CancellationTokenSource _source = new CancellationTokenSource();

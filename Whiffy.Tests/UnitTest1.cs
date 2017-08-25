@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using Hangfire;
 
 namespace Whiffy.Tests
 {
@@ -26,6 +27,11 @@ namespace Whiffy.Tests
 
     public class UnitTest1
     {
+        static UnitTest1()
+        {
+            GlobalConfiguration.Configuration.UseStorage(new DummyJobStorage());
+        }
+
         [Fact]
         public void Test1()
         {
