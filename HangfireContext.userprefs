@@ -1,0 +1,24 @@
+﻿<Properties StartupConfiguration="{255427AB-81E0-42E9-9E73-89AE763E6BFF}|Default">
+  <MonoDevelop.Ide.Workbench ActiveDocument="HangfireContext/ContextJobExecutor.cs">
+    <Files>
+      <File FileName="HangfireContext.Demo/Controllers/ValuesController.cs" Line="28" Column="1" />
+      <File FileName="HangfireContext.Demo/Config.cs" Line="1" Column="1" />
+      <File FileName="HangfireContext.Demo/Program.cs" Line="73" Column="35" />
+      <File FileName="HangfireContext.Demo/Startup.cs" Line="46" Column="13" />
+      <File FileName="HangfireContext/ContextExtensions.cs" Line="23" Column="1" />
+      <File FileName="HangfireContext/ContextManager.cs" Line="97" Column="1" />
+      <File FileName="HangfireContext/ContextSubmitter.cs" Line="34" Column="2" />
+      <File FileName="HangfireContext/ContextJobExecutor.cs" Line="53" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Catchpoint exceptionName="System.Exception" includeSubclasses="True" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.ItemProperties.HangfireContext.Tests PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.ItemProperties.HangfireContext.Demo PreferredExecutionTarget="MonoDevelop.Default" />
+</Properties>
